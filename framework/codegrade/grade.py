@@ -78,7 +78,10 @@ env["NOCOLOR"] = "1"
 env["DISABLE_COCO_CHECK"] = "1"
 env["GRADE_OUTPUT"] = grade_file
 
-# Important: run ./grade from inside the student's reconstructed workspace
+# Emulate docker environment: do NOT expose /usr/lib/llvm-*/bin
+# Keep only system paths.
+env["PATH"] = "/usr/bin:/bin"
+
 sp.check_call(["./grade", "-a", task], cwd=student_coco, env=env)
 
 # Copy the produced grade JSON to the expected output location.
