@@ -77,10 +77,9 @@ env["PRINT_DIFF"] = "1"
 env["NOCOLOR"] = "1"
 env["DISABLE_COCO_CHECK"] = "1"
 env["GRADE_OUTPUT"] = grade_file
-
-# Emulate docker environment: do NOT expose /usr/lib/llvm-*/bin
-# Keep only system paths.
-env["PATH"] = "/usr/bin:/bin"
+env["PATH"] = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+env["OPT"] = "/usr/lib/llvm-14/bin/opt"
+env["LLVM_CONFIG"] = "/usr/lib/llvm-14/bin/llvm-config"
 
 sp.check_call(["./grade", "-a", task], cwd=student_coco, env=env)
 
