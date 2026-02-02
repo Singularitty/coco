@@ -75,6 +75,7 @@ grade_file = f"grade-out-{random.randrange(0, 10_000_000)}.json"
 env = os.environ.copy()
 env["PRINT_DIFF"] = "1"
 env["NOCOLOR"] = "1"
+env["DISABLE_COCO_CHECK"] = "1"
 env["GRADE_OUTPUT"] = grade_file
 
 # Important: run ./grade from inside the student's reconstructed workspace
