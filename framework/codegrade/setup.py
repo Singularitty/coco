@@ -62,10 +62,15 @@ if not ok:
     sp.run(["sudo", "journalctl", "-u", "docker.service", "--no-pager", "-n", "200"], check=False)
     sys.exit(1)
 
-# Build the container for the first time so the image is cached.
-run_py = os.path.join(base_dir, "run.py")
 
-env = os.environ.copy()
-env["DOCKER_BUILDKIT"] = "0"   # belt-and-suspenders
+# Dont use run.py
+docker_path = os.path.join(base_dir, "framework", "docker")
 
-sp.check_call([run_py, "-l", "-c", "ls"], env=env)
+sp.check_call([
+    "sudo", "env", "DOCKER_BUILDKIT=0",
+    "docker", "build", "--network=host",
+    "-t", "coco/docker", docker_path
+])
+
+# optional: also do the dummy run, but build is now cached
+sp.check_call([run_py, "-n", "-c", "ls"])  # -n = nobuild, so it just runs
