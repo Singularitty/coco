@@ -22,8 +22,8 @@ task = sys.argv[2]
 grade_dir = os.path.dirname(os.path.realpath(__file__))
 base_dir = os.path.realpath(os.path.join(grade_dir, "..", ".."))
 
-if getpass.getuser() != "codegrade":
-    error_out("This is supposed to run on the codegrade environment.")
+#if getpass.getuser() != "codegrade":
+#    error_out("This is supposed to run on the codegrade environment.")
 
 os.chdir(base_dir)
 
