@@ -5,6 +5,7 @@ import shutil as sh
 import subprocess as sp
 import sys
 import os
+import time
 
 # This script is executed on codegrade during the initial shared setup.
 
@@ -22,11 +23,43 @@ sp.run(["git", "clean", "-fdx"], cwd=base_dir, stderr=sp.DEVNULL, stdout=sp.DEVN
 sh.rmtree(os.path.join(base_dir, ".git"), ignore_errors=True)
 
 # Setup docker.
-sp.check_call("sudo groupadd docker", shell=True)
-sp.check_call("sudo usermod -aG docker codegrade", shell=True)
-sp.check_call("curl -fsSL https://get.docker.com -o install-docker.sh", shell=True)
-sp.check_call("sudo sh install-docker.sh", shell=True)
+sp.run(["sudo", "groupadd", "docker"], check=False)
+sp.run(["sudo", "usermod", "-aG", "docker", "codegrade"], check=False)
+
+sp.check_call(["bash", "-lc", "curl -fsSL https://get.docker.com -o install-docker.sh"])
+sp.check_call(["sudo", "sh", "install-docker.sh"])
 os.remove("install-docker.sh")
+
+# --- CodeGrade runner fix ---
+# Docker fails to start here due to nftables/iptables restrictions:
+# "failed to create NAT chain DOCKER ... nf_tables ... Invalid argument"
+daemon_json = r'''{
+  "iptables": false,
+  "bridge": "none",
+  "ip-forward": false,
+  "ip-masq": false
+}
+'''
+sp.check_call(["sudo", "mkdir", "-p", "/etc/docker"])
+sp.check_call(["bash", "-lc", f"cat > /tmp/daemon.json <<'EOF'\n{daemon_json}\nEOF"])
+sp.check_call(["sudo", "mv", "/tmp/daemon.json", "/etc/docker/daemon.json"])
+
+# Restart docker and wait until it is actually ready.
+sp.run(["sudo", "systemctl", "reset-failed", "docker.service"], check=False)
+sp.run(["sudo", "systemctl", "restart", "docker.service"], check=False)
+
+ok = False
+for _ in range(30):
+    if sp.run(["sudo", "docker", "info"], stdout=sp.DEVNULL, stderr=sp.DEVNULL).returncode == 0:
+        ok = True
+        break
+    time.sleep(1)
+
+if not ok:
+    # Dump logs to make debugging obvious in CodeGrade output.
+    sp.run(["sudo", "systemctl", "status", "docker.service", "--no-pager", "-l"], check=False)
+    sp.run(["sudo", "journalctl", "-u", "docker.service", "--no-pager", "-n", "200"], check=False)
+    sys.exit(1)
 
 # Build the container for the first time so the image is cached.
 # The 'ls' is just a short dummy command to trigger a build.
