@@ -111,5 +111,5 @@ def start():
 if build_container:
     build()
 else:
-    pull_if_needed(0
+    pull_if_needed()
 start()
