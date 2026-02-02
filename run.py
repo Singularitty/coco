@@ -53,7 +53,7 @@ download = cmd_args.download
 docker_cmd = ["docker"] if nosudo else ["sudo", "docker"]
 image_name = "coco/docker"
 if download:
-    image_name = "teemperor/coco"
+    image_name = "ghcr.io/singularitty/coco:latest"
     build_container = False
 
 # The default dir in the docker container.
@@ -79,6 +79,9 @@ def build():
         print(args)
     sp.check_call(args)
 
+def pull_if_needed():
+    if download:
+        sp.check_call(docker_cmd + ["pull", image_name])
 
 def start():
     args = docker_cmd[:]
@@ -107,4 +110,6 @@ def start():
 
 if build_container:
     build()
+else:
+    pull_if_needed(0
 start()
