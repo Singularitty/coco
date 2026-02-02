@@ -37,7 +37,8 @@ daemon_json = r'''{
   "iptables": false,
   "bridge": "none",
   "ip-forward": false,
-  "ip-masq": false
+  "ip-masq": false,
+  "features": { "buildkit": false }
 }
 '''
 sp.check_call(["sudo", "mkdir", "-p", "/etc/docker"])
@@ -62,6 +63,9 @@ if not ok:
     sys.exit(1)
 
 # Build the container for the first time so the image is cached.
-# The 'ls' is just a short dummy command to trigger a build.
 run_py = os.path.join(base_dir, "run.py")
-sp.check_call([run_py, "-c", "ls"])
+
+env = os.environ.copy()
+env["DOCKER_BUILDKIT"] = "0"   # belt-and-suspenders
+
+sp.check_call([run_py, "-l", "-c", "ls"], env=env)
