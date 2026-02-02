@@ -63,16 +63,5 @@ if not ok:
     sp.run(["sudo", "journalctl", "-u", "docker.service", "--no-pager", "-n", "200"], check=False)
     sys.exit(1)
 
-
-# Dont use run.py
-docker_path = os.path.join(base_dir, "framework", "docker")
-
-sp.check_call([
-    "sudo", "env", "DOCKER_BUILDKIT=0",
-    "docker", "build", "--network=host",
-    "-t", "coco/docker", docker_path
-])
-
-
 run_py = os.path.join(base_dir, "run.py")
-sp.check_call([run_py, "-n", "-c", "ls"])
+sp.check_call([run_py, "-d", "-n", "-c", "ls"])
