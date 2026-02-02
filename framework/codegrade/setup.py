@@ -38,7 +38,8 @@ daemon_json = r'''{
   "bridge": "none",
   "ip-forward": false,
   "ip-masq": false,
-  "features": { "buildkit": false }
+  "features": { "containerd-snapshotter": false },
+  "storage-driver": "vfs"
 }
 '''
 sp.check_call(["sudo", "mkdir", "-p", "/etc/docker"])
