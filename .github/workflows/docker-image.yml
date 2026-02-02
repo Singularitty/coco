@@ -18,8 +18,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Lowercase repo name for GHCR (required)
-      - name: Compute image name
+      - name: Compute image name (lowercase for GHCR)
         id: img
         shell: bash
         run: |
@@ -32,11 +31,11 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push
+      - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: Dockerfile
+          context: framework/docker
+          file: framework/docker/Dockerfile
           push: true
           tags: |
             ${{ steps.img.outputs.IMAGE }}:latest
