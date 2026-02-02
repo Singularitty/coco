@@ -73,5 +73,6 @@ sp.check_call([
     "-t", "coco/docker", docker_path
 ])
 
-# optional: also do the dummy run, but build is now cached
-sp.check_call([run_py, "-n", "-c", "ls"])  # -n = nobuild, so it just runs
+
+run_py = os.path.join(base_dir, "run.py")
+sp.check_call([run_py, "-n", "-c", "ls"])
